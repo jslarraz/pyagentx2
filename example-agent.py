@@ -86,14 +86,14 @@ class MyAgent(pyagentx2.Agent):
 
 def main():
     pyagentx2.setup_logging(debug=True)
-    try:
-        a = MyAgent()
-        a.start()
-    except Exception as e:
-        print "Unhandled exception:", e
-        a.stop()
-    except KeyboardInterrupt:
-        a.stop()
+    # try:
+    a = MyAgent()
+    a.start()
+    # except Exception as e:
+    #     print "Unhandled exception:", e
+    #     a.stop()
+    # except KeyboardInterrupt:
+    #     a.stop()
 
 if __name__=="__main__":
     main()

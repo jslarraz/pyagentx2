@@ -18,4 +18,4 @@ ADD . .
 
 EXPOSE 161/udp
 #CMD /tmp/start_snmpd.sh && tail -f /dev/null
-CMD /tmp/start_snmpd.sh && python example-agent.py
+CMD /tmp/start_snmpd.sh && python rmon_agent.py
