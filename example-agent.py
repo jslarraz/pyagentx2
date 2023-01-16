@@ -21,6 +21,7 @@ snmpset -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleString.0 
 import time
 import random
 import pyagentx2
+import logging
 
 def str_to_oid(data):
     length = len(data)
@@ -63,6 +64,16 @@ class NetSnmpIntegerSet(pyagentx2.SetHandler):
     def commit(self, oid, data):
         print "COMMIT CALLED: %s = %s" % (oid, data)
 
+class NetSnmpIpSet(pyagentx2.SetHandler):
+
+    def test(self, oid, data):
+        logging.info(data)
+        pass
+        # if int(data) > 100:
+        #     raise pyagentx2.SetHandlerError()
+
+    def commit(self, oid, data):
+        print "COMMIT CALLED: %s = %s" % (oid, data)
 
 class MyAgent(pyagentx2.Agent):
 
@@ -70,10 +81,11 @@ class MyAgent(pyagentx2.Agent):
         self.register('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
         self.register('1.3.6.1.4.1.8072.2.2', NetSnmpTestMibTable)
         self.register_set('1.3.6.1.4.1.8072.2.1.1.0', NetSnmpIntegerSet)
+        self.register_set('1.3.6.1.4.1.8072.2.1.2.0', NetSnmpIpSet)
 
 
 def main():
-    pyagentx2.setup_logging()
+    pyagentx2.setup_logging(debug=True)
     try:
         a = MyAgent()
         a.start()

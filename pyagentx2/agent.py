@@ -42,7 +42,7 @@ class Agent(object):
         self._updater_list.append({'oid':oid, 'class':class_, 'freq':freq})
 
     def register_set(self, oid, class_):
-        if pyagentx.SetHandler not in class_.__bases__:
+        if pyagentx2.SetHandler not in class_.__bases__:
             raise AgentError('Class given isn\'t a SetHandler')
         # cleanup and test oid
         try:

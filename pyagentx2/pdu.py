@@ -66,6 +66,17 @@ class PDU(object):
             buf += struct.pack('!L', oid[i])
         return buf
 
+    def encode_ip(self, ip):
+        aux = ip.split(".")
+        if len(aux) != 4:
+            logger.error("Inconsistent ip format")
+        # Ip len
+        buf = struct.pack('!L', 4)
+        # Ip address
+        buf += ''.join([chr(int(i)) for i in aux])
+        logger.debug(buf)
+        return buf
+
 
     def encode_octet(self, octet):
         buf = struct.pack('!L', len(octet))
@@ -86,7 +97,9 @@ class PDU(object):
             buf += struct.pack('!Q', value)
         elif type in [pyagentx2.TYPE_OBJECTIDENTIFIER]:
             buf += self.encode_oid(value)
-        elif type in [pyagentx2.TYPE_IPADDRESS, pyagentx2.TYPE_OPAQUE, pyagentx2.TYPE_OCTETSTRING]:
+        elif type in [pyagentx2.TYPE_IPADDRESS]:
+            buf += self.encode_ip(value)
+        elif type in [pyagentx2.TYPE_OPAQUE, pyagentx2.TYPE_OCTETSTRING]:
             buf += self.encode_octet(value)
         elif type in [pyagentx2.TYPE_NULL, pyagentx2.TYPE_NOSUCHOBJECT, pyagentx2.TYPE_NOSUCHINSTANCE, pyagentx2.TYPE_ENDOFMIBVIEW]:
             # No data
@@ -135,7 +148,7 @@ class PDU(object):
 
         else:
             # Unsupported PDU type
-            pass
+            logging.warning("Unsupported PDU type")
 
         return self.encode_header(self.type, len(buf)) + buf
 
@@ -186,7 +199,22 @@ class PDU(object):
             range_list.append(self.decode_search_range())
         return range_list
 
-    
+
+    def decode_ip(self):
+        try:
+            t = struct.unpack('!L', self.decode_buf[:4])
+            l = t[0]
+            self.decode_buf = self.decode_buf[4:]
+            padding = 4 - (l%4)
+            buf = self.decode_buf[:l]
+            self.decode_buf = self.decode_buf[l+padding:]
+            # Conver buf to ip format
+            ip = '.'.join([str(ord(c)) for c in buf])
+            return ip
+        except Exception, e:
+            logger.exception('Invalid packing ip addr header')
+
+
     def decode_octet(self):
         try:
             t = struct.unpack('!L', self.decode_buf[:4])
@@ -217,7 +245,9 @@ class PDU(object):
             self.decode_buf = self.decode_buf[8:]
         elif vtype in [pyagentx2.TYPE_OBJECTIDENTIFIER]:
             data,_ = self.decode_oid()
-        elif vtype in [pyagentx2.TYPE_IPADDRESS, pyagentx2.TYPE_OPAQUE, pyagentx2.TYPE_OCTETSTRING]:
+        elif vtype in [pyagentx2.TYPE_IPADDRESS]:
+            data = self.decode_ip()
+        elif vtype in [pyagentx2.TYPE_OPAQUE, pyagentx2.TYPE_OCTETSTRING]:
             data = self.decode_octet()
         elif vtype in [pyagentx2.TYPE_NULL, pyagentx2.TYPE_NOSUCHOBJECT, pyagentx2.TYPE_NOSUCHINSTANCE, pyagentx2.TYPE_ENDOFMIBVIEW]:
             # No data

@@ -12,7 +12,7 @@ def setup_logging(debug=False):
         level = logging.DEBUG
     else:
         level = logging.INFO
-    logger = logging.getLogger('pyagentx')
+    logger = logging.getLogger('pyagentx2')
     logger.setLevel(level)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch = logging.StreamHandler()

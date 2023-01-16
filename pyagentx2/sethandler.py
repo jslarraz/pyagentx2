@@ -6,7 +6,7 @@ import logging
 class NullHandler(logging.Handler):
     def emit(self, record):
         pass
-logger = logging.getLogger('pyagentx.sethandler')
+logger = logging.getLogger('pyagentx2.sethandler')
 logger.addHandler(NullHandler())
 # --------------------------------------------
 
