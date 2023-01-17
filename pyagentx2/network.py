@@ -18,6 +18,8 @@ import Queue
 import pyagentx2
 from pyagentx2.pdu import PDU
 
+class SetHandlerError(Exception):
+    pass
 
 class Network(threading.Thread):
 
@@ -27,6 +29,7 @@ class Network(threading.Thread):
         self._queue = queue
         self._oid_list = oid_list
         self._sethandlers = sethandlers
+        self._transactions = {} # To store information about set-test,commit,cleanup open transactions
 
         self.session_id = 0
         self.transaction_id = 0
@@ -167,6 +170,7 @@ class Network(threading.Thread):
                 logger.error("Empty PDU, connection closed!")
                 raise socket.error
 
+            tid = "%s_%s" % (request.session_id, request.transaction_id)
             response = self.response_pdu(request)
             if request.type == pyagentx2.AGENTX_GET_PDU:
                 logger.info("Received GET PDU")
@@ -192,6 +196,10 @@ class Network(threading.Thread):
 
             elif request.type == pyagentx2.AGENTX_TESTSET_PDU:
                 logger.info("Received TESTSET PDU")
+
+                # Clean if the transaction already exists
+                self._transactions[tid] = []
+
                 idx = 0
                 for row in request.values:
                     idx += 1
@@ -199,6 +207,7 @@ class Network(threading.Thread):
                     type_ = pyagentx2.TYPE_NAME.get(row['type'], 'Unknown type')
                     value = row['data']
                     logger.info("Name: [%s] Type: [%s] Value: [%s]" % (oid, type_, value))
+
                     # Find matching sethandler
                     matching_oid = ''
                     for target_oid in self._sethandlers:
@@ -210,30 +219,38 @@ class Network(threading.Thread):
                         response.error = pyagentx2.ERROR_NOTWRITABLE
                         response.error_index = idx
                         break
+
+                    # Call the test function and store varBind in transaction
                     try:
-                        self._sethandlers[matching_oid].network_test(request.session_id, request.transaction_id, oid, row['data'])
+                        self._sethandlers[matching_oid].test(oid, row['data'], self.data)
+                        self._transactions[tid].append((matching_oid, oid, row['data']))
                     except pyagentx2.SetHandlerError:
                         logger.debug('TestSet request failed: wrong value #%s' % idx)
                         response.error = pyagentx2.ERROR_WRONGVALUE
                         response.error_index = idx
                         break
+
                 logger.debug('TestSet request passed')
 
 
             elif request.type == pyagentx2.AGENTX_COMMITSET_PDU:
-                for handler in self._sethandlers.values():
-                    handler.network_commit(request.session_id, request.transaction_id)
                 logger.info("Received COMMITSET PDU")
 
+                try:
+                    if tid in self._transactions:
+                        for matching_oid, oid, data in self._transactions[tid]:
+                            self._sethandlers[matching_oid].commit(oid, data, self.data)
+                        del (self._transactions[tid])
+                except:
+                    logger.error('CommitSet failed')
+
             elif request.type == pyagentx2.AGENTX_UNDOSET_PDU:
-                for handler in self._sethandlers.values():
-                    handler.network_undo(request.session_id, request.transaction_id)
-                logger.info("Received UNDOSET PDU")
+                if tid in self._transactions:
+                    del (self._transactions[tid])
 
             elif request.type == pyagentx2.AGENTX_CLEANUPSET_PDU:
-                for handler in self._sethandlers.values():
-                    handler.network_cleanup(request.session_id, request.transaction_id)
-                logger.info("Received CLEANUP PDU")
+                if tid in self._transactions:
+                    del (self._transactions[tid])
 
             self.send_pdu(response)
 
