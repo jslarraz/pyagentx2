@@ -2,9 +2,9 @@ from setuptools import setup
 
 
 setup(
-    name = "pyagentx",
-    version = "0.4.1",
-    author = "Rayed Alrashed",
+    name = "pyagentx2",
+    version = "0.9.0",
+    author = "Jorge Sancho",
     author_email = "rayed@rayed.com",
     description = ("AgentX package to extend SNMP with pure Python"),
     license = "BSD",
@@ -24,11 +24,10 @@ setup(
         "Intended Audience :: Telecommunications Industry",
     ],
     long_description='''\
-PyAgentX
+PyAgentX2
 --------------------
-pyagentx is a pure Python implementation of AgentX protocol (RFC 2741), it
-will allow you to extend SNMP agent (snmpd) by writing AgentX subagents,
-without modifying your original SNMP agent.
+pyagentx2 is a fork of pyagentx, which is a pure Python implementation of AgentX protocol (RFC 2741), that
+allows you to extend SNMP agent (snmpd) by writing AgentX subagents, without modifying your original SNMP agent.
 
 The agent can support the following commands:
 - snmpget

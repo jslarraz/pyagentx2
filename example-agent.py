@@ -18,7 +18,6 @@ snmpset -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleString.0 
 
 '''
 
-import time
 import random
 import pyagentx2
 import logging
@@ -32,7 +31,7 @@ def str_to_oid(data):
 class NetSnmpTestMibScalar(pyagentx2.Updater):
 
     def update(self):
-        self.set_INTEGER('1.0', 1000)
+        # self.set_INTEGER('1.0', 1000)
         self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
         self.set_OBJECTIDENTIFIER('4.0', '1.2')
         self.set_IPADDRESS('5.0', '127.0.0.1')
@@ -57,23 +56,23 @@ class NetSnmpTestMibTable(pyagentx2.Updater):
 
 class NetSnmpIntegerSet(pyagentx2.SetHandler):
 
-    def test(self, oid, data):
-        if int(data) > 100:
+    def test(self, oid, type, value, mib):
+        if int(value) > 100:
             raise pyagentx2.SetHandlerError()
 
-    def commit(self, oid, data):
-        print "COMMIT CALLED: %s = %s" % (oid, data)
+    def commit(self, oid, type, value, mib):
+        print "COMMIT CALLED: %s = %s" % (oid, value)
+        mib.set(oid, type, value)
 
 class NetSnmpIpSet(pyagentx2.SetHandler):
 
-    def test(self, oid, data):
-        logging.info(data)
-        pass
-        # if int(data) > 100:
-        #     raise pyagentx2.SetHandlerError()
+    def test(self, oid, type, value, mib):
+        if int(value) > 100:
+            raise pyagentx2.SetHandlerError()
 
-    def commit(self, oid, data):
-        print "COMMIT CALLED: %s = %s" % (oid, data)
+    def commit(self, oid, type, value, mib):
+        print "COMMIT CALLED: %s = %s" % (oid, value)
+        mib.set(oid, type, value)
 
 class MyAgent(pyagentx2.Agent):
 
@@ -85,15 +84,15 @@ class MyAgent(pyagentx2.Agent):
 
 
 def main():
-    pyagentx2.setup_logging(debug=True)
-    # try:
+    pyagentx2.setup_logging(debug=False)
     a = MyAgent()
-    a.start()
-    # except Exception as e:
-    #     print "Unhandled exception:", e
-    #     a.stop()
-    # except KeyboardInterrupt:
-    #     a.stop()
+    try:
+        a.start()
+    except Exception as e:
+        print "Unhandled exception:", e
+        a.stop()
+    except KeyboardInterrupt:
+        a.stop()
 
 if __name__=="__main__":
     main()

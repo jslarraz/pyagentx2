@@ -18,8 +18,8 @@ class MyAgent(pyagentx2.Agent):
 
 # Main 
 pyagentx2.setup_logging()
+a = MyAgent()
 try:
-    a = MyAgent()
     a.start()
 except Exception as e:
     print "Unhandled exception:", e
