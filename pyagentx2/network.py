@@ -16,7 +16,6 @@ import threading
 
 import pyagentx2
 from pyagentx2.pdu import PDU
-from pyagentx2.mib import MIB
 
 class SetHandlerError(Exception):
     pass
@@ -24,10 +23,9 @@ class SetHandlerError(Exception):
 
 class Network(threading.Thread):
 
-    def __init__(self, queue, oid_list, sethandlers):
+    def __init__(self, mib, oid_list, sethandlers):
         threading.Thread.__init__(self)
         self.stop = threading.Event()
-        self._queue = queue
         self._oid_list = oid_list
         self._sethandlers = sethandlers
         self._transactions = {} # To store information about set-test,commit,cleanup open transactions
@@ -37,7 +35,7 @@ class Network(threading.Thread):
         self.debug = 1
 
         # Data Related Variables
-        self.mib = MIB()
+        self.mib = mib
 
     def _connect(self):
         while True:
@@ -79,7 +77,7 @@ class Network(threading.Thread):
 
     # =========================================
 
-    def start(self):
+    def run(self):
         while True:
             try:
                 self._start_network()
@@ -111,7 +109,6 @@ class Network(threading.Thread):
         logger.info("==== Waiting for PDU ====")
         while True:
             try:
-                self.mib._get_updates(self._queue)
                 request = self.recv_pdu()
             except socket.timeout:
                 continue
@@ -127,9 +124,6 @@ class Network(threading.Thread):
                 for rvalue in request.range_list:
                     oid = rvalue[0]
                     logger.debug("OID: %s" % (oid))
-                    # if oid in self.data:
-                    #     logger.debug("OID Found")
-                    #     response.values.append(self.data[oid])
                     value = self.mib.get(oid)
                     if value is not None:
                         response.values.append(value)

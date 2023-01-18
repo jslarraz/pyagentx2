@@ -12,19 +12,19 @@ logger.addHandler(NullHandler())
 
 import time
 import threading
-import Queue
-
-import pyagentx2
 
 
 class Updater(threading.Thread):
 
-    def agent_setup(self, queue, oid, freq):
+    def __init__(self, mib, oid, freq):
+        threading.Thread.__init__(self)
         self.stop = threading.Event()
-        self._queue = queue
+
+        self.mib = mib
         self._oid = oid
         self._freq = freq
-        self._data = {}
+
+
 
     def run(self):
         start_time = 0
@@ -34,55 +34,10 @@ class Updater(threading.Thread):
             if now - start_time > self._freq:
                 logger.info('Updating : %s (%s)' % (self.__class__.__name__, self._oid))
                 start_time = now
-                self._data = {}
-                try:
-                    self.update()
-                    self._queue.put_nowait({'oid': self._oid,
-                                            'data':self._data})
-                except Queue.Full:
-                    logger.error('Queue full')
-                except:
-                    logger.exception('Unhandled update exception')
+                self.update(self.mib)
             time.sleep(0.1)
         logger.info('Updater stopping')
 
     # Override this
-    def update(self):
+    def update(self, mib):
         pass
-
-    def set_INTEGER(self, oid, value):
-        logger.debug('Setting INTEGER %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_INTEGER, 'value':value}
-
-    def set_OCTETSTRING(self, oid, value):
-        logger.debug('Setting OCTETSTRING %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_OCTETSTRING, 'value':value}
-
-    def set_OBJECTIDENTIFIER(self, oid, value):
-        logger.debug('Setting OBJECTIDENTIFIER %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_OBJECTIDENTIFIER, 'value':value}
-
-    def set_IPADDRESS(self, oid, value):
-        logger.debug('Setting IPADDRESS %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_IPADDRESS, 'value':value}
-
-    def set_COUNTER32(self, oid, value):
-        logger.debug('Setting COUNTER32 %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_COUNTER32, 'value':value}
-
-    def set_GAUGE32(self, oid, value):
-        logger.debug('Setting GAUGE32 %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_GAUGE32, 'value':value}
-
-    def set_TIMETICKS(self, oid, value):
-        logger.debug('Setting TIMETICKS %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_TIMETICKS, 'value':value}
-
-    def set_OPAQUE(self, oid, value):
-        logger.debug('Setting OPAQUE %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_OPAQUE, 'value':value}
-
-    def set_COUNTER64(self, oid, value):
-        logger.debug('Setting COUNTER64 %s = %s' % (oid, value))
-        self._data[oid] = {'name': oid, 'type':pyagentx2.TYPE_COUNTER64, 'value':value}
-

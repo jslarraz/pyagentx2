@@ -11,12 +11,12 @@ logger.addHandler(NullHandler())
 # --------------------------------------------
 
 
-import Queue
+# import Queue
 
 import pyagentx2
 
 
-class MIB():
+class MIB(object):
 
     def __init__(self):
         self.data = {}
@@ -90,23 +90,23 @@ class MIB():
 
 
 
-    def _get_updates(self, queue):
-        while True:
-            try:
-                item = queue.get_nowait()
-                logger.debug('New update')
-                update_oid = item['oid']
-                update_data = item['data']
-
-                # insert updated value
-                for row in update_data.values():
-                    oid = "%s.%s" % (update_oid, row['name'])
-                    self.data[oid] = {'name': oid, 'type': row['type'], 'value': row['value']}
-
-                # recalculate reverse index if data changed
-                self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
-            except Queue.Empty:
-                break
+    # def _get_updates(self, queue):
+    #     while True:
+    #         try:
+    #             item = queue.get_nowait()
+    #             logger.debug('New update')
+    #             update_oid = item['oid']
+    #             update_data = item['data']
+    #
+    #             # insert updated value
+    #             for row in update_data.values():
+    #                 oid = "%s.%s" % (update_oid, row['name'])
+    #                 self.data[oid] = {'name': oid, 'type': row['type'], 'value': row['value']}
+    #
+    #             # recalculate reverse index if data changed
+    #             self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
+    #         except Queue.Empty:
+    #             break
 
     def _get_next_oid(self, oid, endoid):
         if oid in self.data:

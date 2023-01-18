@@ -11,12 +11,12 @@ logger.addHandler(NullHandler())
 # --------------------------------------------
 
 import time
-import Queue
 import inspect
 
 import pyagentx2
 from pyagentx2.updater import Updater
 from pyagentx2.network import Network
+from pyagentx2.mib import MIB
 
 
 
@@ -57,20 +57,22 @@ class Agent(object):
         pass
 
     def start(self):
-        queue = Queue.Queue(maxsize=20)
+        mib = MIB()
         self.setup()
+
         # Start Updaters
         for u in self._updater_list:
             logger.debug('Starting updater [%s]' % u['oid'])
-            t = u['class']()
-            t.agent_setup(queue, u['oid'], u['freq'])
+            t = u['class'](mib, u['oid'], u['freq'])
             t.start()
             self._threads.append(t)
+
         # Start Network
         oid_list = [u['oid'] for u in self._updater_list]
-        t = Network(queue, oid_list, self._sethandlers)
+        t = Network(mib, oid_list, self._sethandlers)
         t.start()
         self._threads.append(t)
+
         # Do nothing ... just wait for someone to stop you
         while True:
             #logger.debug('Agent Sleeping ...')
