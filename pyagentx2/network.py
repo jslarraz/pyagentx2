@@ -13,13 +13,14 @@ logger.addHandler(NullHandler())
 import socket
 import time
 import threading
-import Queue
 
 import pyagentx2
 from pyagentx2.pdu import PDU
+from pyagentx2.mib import MIB
 
 class SetHandlerError(Exception):
     pass
+
 
 class Network(threading.Thread):
 
@@ -34,9 +35,9 @@ class Network(threading.Thread):
         self.session_id = 0
         self.transaction_id = 0
         self.debug = 1
+
         # Data Related Variables
-        self.data = {}        
-        self.data_idx = []
+        self.mib = MIB()
 
     def _connect(self):
         while True:
@@ -78,57 +79,6 @@ class Network(threading.Thread):
 
     # =========================================
 
-
-    def _get_updates(self):
-        while True:
-            try:
-                item = self._queue.get_nowait()
-                logger.debug('New update')
-                update_oid = item['oid']
-                update_data = item['data']
-                # clear values with prefix oid
-                for oid in self.data.keys():
-                    if oid.startswith(update_oid):
-                        del(self.data[oid])
-                # insert updated value
-                for row in update_data.values():
-                    oid = "%s.%s" % (update_oid, row['name'])
-                    self.data[oid] = {'name': oid, 'type':row['type'],
-                                      'value':row['value']}
-                # recalculate reverse index if data changed
-                self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
-            except Queue.Empty:
-                break
-
-
-    def _get_next_oid(self, oid, endoid):
-        if oid in self.data:
-            # Exact match found
-            #logger.debug('get_next_oid, exact match of %s' % oid)
-            idx = self.data_idx.index(oid)
-            if idx == (len(self.data_idx)-1):
-                # Last Item in MIB, No match!
-                return None
-            return self.data_idx[idx+1]
-        else:
-            # No exact match, find prefix
-            #logger.debug('get_next_oid, no exact match of %s' % oid)
-            slist = oid.split('.')
-            elist = endoid.split('.')
-            for tmp_oid in self.data_idx:
-                tlist = tmp_oid.split('.')
-                for i in range(len(tlist)):
-                    try:
-                        sok = int(slist[i]) <= int(tlist[i])
-                        eok = int(elist[i]) >= int(tlist[i])
-                        if not ( sok and eok ):
-                            break
-                    except IndexError:
-                        pass
-                if sok and eok:
-                    return tmp_oid
-            return None # No match!
-    
     def start(self):
         while True:
             try:
@@ -161,7 +111,7 @@ class Network(threading.Thread):
         logger.info("==== Waiting for PDU ====")
         while True:
             try:
-                self._get_updates()
+                self.mib._get_updates(self._queue)
                 request = self.recv_pdu()
             except socket.timeout:
                 continue
@@ -177,9 +127,12 @@ class Network(threading.Thread):
                 for rvalue in request.range_list:
                     oid = rvalue[0]
                     logger.debug("OID: %s" % (oid))
-                    if oid in self.data:
-                        logger.debug("OID Found")
-                        response.values.append(self.data[oid])
+                    # if oid in self.data:
+                    #     logger.debug("OID Found")
+                    #     response.values.append(self.data[oid])
+                    value = self.mib.get(oid)
+                    if value is not None:
+                        response.values.append(value)
                     else:
                         logger.debug("OID Not Found!")
                         response.values.append({'type':pyagentx2.TYPE_NOSUCHOBJECT, 'name':rvalue[0], 'value':0})
@@ -187,10 +140,9 @@ class Network(threading.Thread):
             elif request.type == pyagentx2.AGENTX_GETNEXT_PDU:
                 logger.info("Received GET_NEXT PDU")
                 for rvalue in request.range_list:
-                    oid = self._get_next_oid(rvalue[0],rvalue[1])
-                    logger.debug("GET_NEXT: %s => %s" % (rvalue[0], oid))
-                    if oid:
-                        response.values.append(self.data[oid])
+                    value = self.mib.get_next(rvalue[0],rvalue[1])
+                    if value is not None:
+                        response.values.append(value)
                     else:
                         response.values.append({'type':pyagentx2.TYPE_ENDOFMIBVIEW, 'name':rvalue[0], 'value':0})
 
@@ -222,7 +174,7 @@ class Network(threading.Thread):
 
                     # Call the test function and store varBind in transaction
                     try:
-                        self._sethandlers[matching_oid].test(oid, row['data'], self.data)
+                        self._sethandlers[matching_oid].test(oid, row['data'], self.mib)
                         self._transactions[tid].append((matching_oid, oid, row['data']))
                     except pyagentx2.SetHandlerError:
                         logger.debug('TestSet request failed: wrong value #%s' % idx)
@@ -239,7 +191,7 @@ class Network(threading.Thread):
                 try:
                     if tid in self._transactions:
                         for matching_oid, oid, data in self._transactions[tid]:
-                            self._sethandlers[matching_oid].commit(oid, data, self.data)
+                            self._sethandlers[matching_oid].commit(oid, data, self.mib)
                         del (self._transactions[tid])
                 except:
                     logger.error('CommitSet failed')

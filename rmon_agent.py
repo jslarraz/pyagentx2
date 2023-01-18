@@ -26,22 +26,18 @@ class FilterTableUpdater(pyagentx2.Updater):
         # implement netSnmpIETFWGTable from NET-SNMP-EXAMPLES-MIB.txt
         # Number of entries in table is random to show that MIB is reset
         # on every update
-        self.set_INTEGER('1.1.11.100', 0)
+        self.set_INTEGER('1.1.11.100', 100)
 
 class FilterTableSetHandler(pyagentx2.SetHandler):
 
     def test(self, oid, data, mib):
-        print("ENTRO TEST FILER")
-        print(mib)
-        pass
+        print(mib.get_oids())
         # if int(data) > 100:
         #     raise pyagentx2.SetHandlerError()
 
     def commit(self, oid, data, mib):
-        print ("ENTRO COMMIT FILTER")
-        print (mib)
-        print "COMMIT CALLED: %s = %s" % (oid, data)
-
+        print "COMMIT FILTER CALLED: %s = %s" % (oid, data)
+        mib.set_INTEGER(oid, data)
 
 class ChannelTableUpdater(pyagentx2.Updater):
 
@@ -49,21 +45,18 @@ class ChannelTableUpdater(pyagentx2.Updater):
         # implement netSnmpIETFWGTable from NET-SNMP-EXAMPLES-MIB.txt
         # Number of entries in table is random to show that MIB is reset
         # on every update
-        self.set_INTEGER('1.1.11.200', 0)
+        self.set_INTEGER('1.1.11.200', 200)
 
 class ChannelTableSetHandler(pyagentx2.SetHandler):
 
     def test(self, oid, data, mib):
-        print("ENTRO TEST CHANNEL")
-        print mib
+        pass
         # if int(data) > 100:
         #     raise pyagentx2.SetHandlerError()
 
     def commit(self, oid, data, mib):
-        print ("ENTRO COMMIT CHANNEL")
-
-        mib[oid] = {'name': oid, 'type': pyagentx2.TYPE_INTEGER, 'value': data}
-        print "COMMIT CALLED: %s = %s" % (oid, data)
+        print "COMMIT CHANNEL CALLED: %s = %s" % (oid, data)
+        mib.set_INTEGER(oid, data)
 
 
 class MyAgent(pyagentx2.Agent):
