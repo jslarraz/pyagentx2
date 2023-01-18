@@ -30,14 +30,14 @@ class FilterTableUpdater(pyagentx2.Updater):
 
 class FilterTableSetHandler(pyagentx2.SetHandler):
 
-    def test(self, oid, data, mib):
+    def test(self, oid, type, value, mib):
         print(mib.get_oids())
         # if int(data) > 100:
         #     raise pyagentx2.SetHandlerError()
 
-    def commit(self, oid, data, mib):
-        print "COMMIT FILTER CALLED: %s = %s" % (oid, data)
-        mib.set_INTEGER(oid, data)
+    def commit(self, oid, type, value, mib):
+        print "COMMIT FILTER CALLED: %s = %s" % (oid, value)
+        mib.set_INTEGER(oid, value)
 
 class ChannelTableUpdater(pyagentx2.Updater):
 
@@ -49,14 +49,16 @@ class ChannelTableUpdater(pyagentx2.Updater):
 
 class ChannelTableSetHandler(pyagentx2.SetHandler):
 
-    def test(self, oid, data, mib):
+    def test(self, oid, type, value, mib):
         pass
         # if int(data) > 100:
         #     raise pyagentx2.SetHandlerError()
 
-    def commit(self, oid, data, mib):
-        print "COMMIT CHANNEL CALLED: %s = %s" % (oid, data)
-        mib.set_INTEGER(oid, data)
+    def commit(self, oid, type_, value, mib):
+        print "COMMIT CHANNEL CALLED: %s = %s" % (oid, value)
+        mib.set_INTEGER(oid, value)
+        print(type(type_))
+        # mib.set(oid, type, value)
 
 
 class MyAgent(pyagentx2.Agent):

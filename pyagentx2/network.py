@@ -156,6 +156,7 @@ class Network(threading.Thread):
                 for row in request.values:
                     idx += 1
                     oid = row['name']
+                    type = row['type']
                     type_ = pyagentx2.TYPE_NAME.get(row['type'], 'Unknown type')
                     value = row['data']
                     logger.info("Name: [%s] Type: [%s] Value: [%s]" % (oid, type_, value))
@@ -174,8 +175,8 @@ class Network(threading.Thread):
 
                     # Call the test function and store varBind in transaction
                     try:
-                        self._sethandlers[matching_oid].test(oid, row['data'], self.mib)
-                        self._transactions[tid].append((matching_oid, oid, row['data']))
+                        self._sethandlers[matching_oid].test(oid, type, value, self.mib)
+                        self._transactions[tid].append((matching_oid, oid, type, value))
                     except pyagentx2.SetHandlerError:
                         logger.debug('TestSet request failed: wrong value #%s' % idx)
                         response.error = pyagentx2.ERROR_WRONGVALUE
@@ -190,8 +191,8 @@ class Network(threading.Thread):
 
                 try:
                     if tid in self._transactions:
-                        for matching_oid, oid, data in self._transactions[tid]:
-                            self._sethandlers[matching_oid].commit(oid, data, self.mib)
+                        for matching_oid, oid, type, value in self._transactions[tid]:
+                            self._sethandlers[matching_oid].commit(oid, type, value, self.mib)
                         del (self._transactions[tid])
                 except:
                     logger.error('CommitSet failed')

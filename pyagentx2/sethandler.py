@@ -16,9 +16,9 @@ class SetHandlerError(Exception):
 class SetHandler(object):
 
     # User override these 
-    def test(self, oid, data, mib):
+    def test(self, oid, type, value, mib):
         pass
 
-    def commit(self, oid, data, mib):
+    def commit(self, oid, type, value, mib):
         pass
 
