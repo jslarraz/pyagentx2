@@ -31,6 +31,10 @@ class MIB(object):
     def delete_oid(self, oid):
         del(self.data[oid])
 
+    def clear(self):
+        self.data = {}
+        self.data_idx = []
+
     def get(self, oid):
         if oid in self.data:
             return self.data[oid]
@@ -51,7 +55,6 @@ class MIB(object):
         self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
 
     ### Helpers
-
     def set_INTEGER(self, oid, value):
         logger.debug('Setting INTEGER %s = %s' % (oid, value))
         self.set(oid, pyagentx2.TYPE_INTEGER, value)
@@ -87,26 +90,6 @@ class MIB(object):
     def set_COUNTER64(self, oid, value):
         logger.debug('Setting COUNTER64 %s = %s' % (oid, value))
         self.set(oid, pyagentx2.TYPE_COUNTER64, value)
-
-
-
-    # def _get_updates(self, queue):
-    #     while True:
-    #         try:
-    #             item = queue.get_nowait()
-    #             logger.debug('New update')
-    #             update_oid = item['oid']
-    #             update_data = item['data']
-    #
-    #             # insert updated value
-    #             for row in update_data.values():
-    #                 oid = "%s.%s" % (update_oid, row['name'])
-    #                 self.data[oid] = {'name': oid, 'type': row['type'], 'value': row['value']}
-    #
-    #             # recalculate reverse index if data changed
-    #             self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
-    #         except Queue.Empty:
-    #             break
 
     def _get_next_oid(self, oid, endoid):
         if oid in self.data:
