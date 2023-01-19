@@ -30,28 +30,28 @@ def str_to_oid(data):
 
 class NetSnmpTestMibScalar(pyagentx2.Updater):
 
-    def update(self):
+    def update(self, mib):
         # self.set_INTEGER('1.0', 1000)
-        self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
-        self.set_OBJECTIDENTIFIER('4.0', '1.2')
-        self.set_IPADDRESS('5.0', '127.0.0.1')
-        self.set_COUNTER32('6.0', 2000)
-        self.set_GAUGE32('7.0', 2000)
-        self.set_TIMETICKS('8.0', 1000000)
-        self.set_OPAQUE('9.0', 'Test')
-        self.set_COUNTER64('10.0', 2000)
+        # mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.1.3.0', 'String for NET-SNMP-EXAMPLES-MIB')
+        mib.set_OBJECTIDENTIFIER('1.3.6.1.4.1.8072.2.1.4.0', '1.2')
+        mib.set_IPADDRESS('1.3.6.1.4.1.8072.2.1.5.0', '127.0.0.1')
+        mib.set_COUNTER32('1.3.6.1.4.1.8072.2.1.6.0', 2000)
+        mib.set_GAUGE32('1.3.6.1.4.1.8072.2.1.7.0', 2000)
+        mib.set_TIMETICKS('1.3.6.1.4.1.8072.2.1.8.0', 1000000)
+        mib.set_OPAQUE('1.3.6.1.4.1.8072.2.1.9.0', 'Test')
+        mib.set_COUNTER64('1.3.6.1.4.1.8072.2.1.10.0', 2000)
 
 
 class NetSnmpTestMibTable(pyagentx2.Updater):
 
-    def update(self):
+    def update(self, mib):
         # implement netSnmpIETFWGTable from NET-SNMP-EXAMPLES-MIB.txt
         # Number of entries in table is random to show that MIB is reset
         # on every update
         for i in range(random.randint(3, 5)):
             idx = str_to_oid('group%s' % (i+1))
-            self.set_OCTETSTRING('1.1.2.' + idx, 'member 1')
-            self.set_OCTETSTRING('1.1.3.' + idx, 'member 2')
+            mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.2.1.1.2.' + idx, 'member 1')
+            mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.2.1.1.3.' + idx, 'member 2')
 
 
 class NetSnmpIntegerSet(pyagentx2.SetHandler):
@@ -61,17 +61,29 @@ class NetSnmpIntegerSet(pyagentx2.SetHandler):
             raise pyagentx2.SetHandlerError()
 
     def commit(self, oid, type, value, mib):
-        print "COMMIT CALLED: %s = %s" % (oid, value)
+        print("COMMIT CALLED: %s = %s" % (oid, value))
         mib.set(oid, type, value)
 
 class NetSnmpIpSet(pyagentx2.SetHandler):
 
     def test(self, oid, type, value, mib):
-        if int(value) > 100:
-            raise pyagentx2.SetHandlerError()
+        pass
+        # if int(value) > 100:
+        #     raise pyagentx2.SetHandlerError()
 
     def commit(self, oid, type, value, mib):
-        print "COMMIT CALLED: %s = %s" % (oid, value)
+        print("COMMIT CALLED: %s = %s" % (oid, value))
+        mib.set(oid, type, value)
+
+class NetSnmpOctectStringSet(pyagentx2.SetHandler):
+
+    def test(self, oid, type, value, mib):
+        pass
+        # if int(value) > 100:
+        #     raise pyagentx2.SetHandlerError()
+
+    def commit(self, oid, type, value, mib):
+        print("COMMIT CALLED: %s = %s" % (oid, value))
         mib.set(oid, type, value)
 
 class MyAgent(pyagentx2.Agent):
@@ -81,6 +93,7 @@ class MyAgent(pyagentx2.Agent):
         self.register('1.3.6.1.4.1.8072.2.2', NetSnmpTestMibTable)
         self.register_set('1.3.6.1.4.1.8072.2.1.1.0', NetSnmpIntegerSet)
         self.register_set('1.3.6.1.4.1.8072.2.1.2.0', NetSnmpIpSet)
+        self.register_set('1.3.6.1.4.1.8072.2.1.3.0', NetSnmpOctectStringSet)
 
 
 def main():
@@ -89,7 +102,7 @@ def main():
     try:
         a.start()
     except Exception as e:
-        print "Unhandled exception:", e
+        print("Unhandled exception:", e)
         a.stop()
     except KeyboardInterrupt:
         a.stop()

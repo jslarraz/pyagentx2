@@ -34,7 +34,7 @@ class FilterTableSetHandler(pyagentx2.SetHandler):
         #     raise pyagentx2.SetHandlerError()
 
     def commit(self, oid, type, value, mib):
-        print "COMMIT FILTER CALLED: %s = %s" % (oid, value)
+        print("COMMIT FILTER CALLED: %s = %s" % (oid, value))
         mib.set(oid, type, value)
 
 class ChannelTableUpdater(pyagentx2.Updater):
@@ -54,7 +54,7 @@ class ChannelTableSetHandler(pyagentx2.SetHandler):
         #     raise pyagentx2.SetHandlerError()
 
     def commit(self, oid, type, value, mib):
-        print "COMMIT CHANNEL CALLED: %s = %s" % (oid, value)
+        print("COMMIT CHANNEL CALLED: %s = %s" % (oid, value))
         mib.set(oid, type, value)
 
 
@@ -74,7 +74,7 @@ def main():
         a = MyAgent()
         a.start()
     except Exception as e:
-        print "Unhandled exception:", e
+        print("Unhandled exception:", e)
         a.stop()
     except KeyboardInterrupt:
         a.stop()

@@ -8,8 +8,8 @@ RUN apt-get update
 RUN apt-get -y install apt-utils
 
 # Install python (v2.7)
-RUN apt-get -y install python
-RUN apt-get -y install python-pip
+RUN apt-get -y install python3
+RUN apt-get -y install python3-pip
 
 
 # Copy project files to working directory
@@ -18,4 +18,4 @@ ADD . .
 
 EXPOSE 161/udp
 #CMD /tmp/start_snmpd.sh && tail -f /dev/null
-CMD /tmp/start_snmpd.sh && python rmon_agent.py
+CMD /tmp/start_snmpd.sh && python3 example-agent.py

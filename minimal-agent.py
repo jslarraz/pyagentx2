@@ -4,9 +4,9 @@ import pyagentx2
 
 # Updater class that set OID values
 class NetSnmpPlaypen(pyagentx2.Updater):
-    def update(self):
-        self.set_INTEGER('1.0', 1000)
-        self.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
+    def update(self, mib):
+        mib.set_INTEGER('1.0', 1000)
+        mib.set_OCTETSTRING('3.0', 'String for NET-SNMP-EXAMPLES-MIB')
 
 
 class MyAgent(pyagentx2.Agent):
