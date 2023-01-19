@@ -3,14 +3,14 @@ from setuptools import setup
 
 setup(
     name = "pyagentx2",
-    version = "0.9.0",
+    version = "1.0.0",
     author = "Jorge Sancho",
-    author_email = "rayed@rayed.com",
+    author_email = "jslarraz@gmail.com",
     description = ("AgentX package to extend SNMP with pure Python"),
     license = "BSD",
     keywords = "snmp network agentx ",
-    url = "https://github.com/rayed/pyagentx",
-    packages=['pyagentx'],
+    url = "https://github.com/jslarraz/pyagentx2",
+    packages=['pyagentx2'],
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
