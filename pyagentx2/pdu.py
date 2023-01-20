@@ -74,7 +74,7 @@ class PDU(object):
         buf = struct.pack('!L', 4)
         # Ip address
         for i in aux:
-            buf += chr(int(i)).encode()
+            buf += chr(int(i)).encode('charmap')
         logger.debug(buf)
         return buf
 
