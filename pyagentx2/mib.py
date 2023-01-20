@@ -30,6 +30,7 @@ class MIB(object):
 
     def delete_oid(self, oid):
         del(self.data[oid])
+        self.data_idx = sorted(self.data.keys(), key=lambda k: tuple(int(part) for part in k.split('.')))
 
     def clear(self):
         self.data = {}
