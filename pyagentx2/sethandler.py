@@ -26,22 +26,22 @@ class WrongLengthException(Exception):
 class WrongEncodingException(Exception):
     pass
 
-class WrongValue(Exception):
+class WrongValueException(Exception):
     pass
 
-class NoCreation(Exception):
+class NoCreationException(Exception):
     pass
 
-class InconsistentValue(Exception):
+class InconsistentValueException(Exception):
     pass
 
-class ResourceUnavailable(Exception):
+class ResourceUnavailableException(Exception):
     pass
 
-class NotWritable(Exception):
+class NotWritableException(Exception):
     pass
 
-class InconsistentName(Exception):
+class InconsistentNameException(Exception):
     pass
 
 

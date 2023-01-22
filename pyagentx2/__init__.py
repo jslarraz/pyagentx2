@@ -3,8 +3,9 @@
 
 import logging
 
-from pyagentx2.updater import Updater
 from pyagentx2.agent import Agent
+from pyagentx2.updater import Updater
+from pyagentx2.sethandler import SetHandler
 
 def setup_logging(debug=False):
     if debug:
