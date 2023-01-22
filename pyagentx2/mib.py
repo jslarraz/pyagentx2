@@ -11,8 +11,6 @@ logger.addHandler(NullHandler())
 # --------------------------------------------
 
 
-# import Queue
-
 import pyagentx2
 
 
