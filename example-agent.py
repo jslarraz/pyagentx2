@@ -20,7 +20,7 @@ snmpset -v 2c -c public localhost NET-SNMP-EXAMPLES-MIB::netSnmpExampleString.0 
 
 import random
 import pyagentx2
-import logging
+
 
 def str_to_oid(data):
     length = len(data)
@@ -58,7 +58,7 @@ class NetSnmpIntegerSet(pyagentx2.SetHandler):
 
     def test(self, oid, type, value, mib):
         if int(value) > 100:
-            raise pyagentx2.SetHandlerError()
+            raise pyagentx2.WrongValueException()
 
     def commit(self, oid, type, value, mib):
         print("COMMIT CALLED: %s = %s" % (oid, value))
