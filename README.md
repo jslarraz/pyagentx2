@@ -39,3 +39,4 @@ Changes from the origina pyagentx:
 * set handlers now also receive the data type of the value and the mib object
 * use shared memory for inter-thread communication instead of queues.
 * support for python3
+* support for different error during testset

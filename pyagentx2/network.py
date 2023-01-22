@@ -16,9 +16,7 @@ import threading
 
 import pyagentx2
 from pyagentx2.pdu import PDU
-
-class SetHandlerError(Exception):
-    pass
+from pyagentx2.sethandler import GenErrException, NoAccessException, WrongTypeException, WrongLengthException, WrongEncodingException, WrongValueException, NoCreationException, InconsistentValueException, ResourceUnavailableException, NotWritableException, InconsistentNameException
 
 
 class Network(threading.Thread):
@@ -171,10 +169,63 @@ class Network(threading.Thread):
                     try:
                         self._sethandlers[matching_oid].test(oid, type, value, self.mib)
                         self._transactions[tid].append((matching_oid, oid, type, value))
-                    except pyagentx2.SetHandlerError:
-                        logger.debug('TestSet request failed: wrong value #%s' % idx)
+                    except GenErrException:
+                        logger.debug('TestSet request failed: genErr #%s' % idx)
+                        response.error = pyagentx2.ERROR_GENERR
+                        response.error_index = idx
+                        break
+                    except NoAccessException:
+                        logger.debug('TestSet request failed: noAccess #%s' % idx)
+                        response.error = pyagentx2.ERROR_NOACCESS
+                        response.error_index = idx
+                        break
+                    except WrongTypeException:
+                        logger.debug('TestSet request failed: wrongType #%s' % idx)
+                        response.error = pyagentx2.ERROR_WRONGTYPE
+                        response.error_index = idx
+                        break
+                    except WrongLengthException:
+                        logger.debug('TestSet request failed: wrongLength #%s' % idx)
+                        response.error = pyagentx2.ERROR_WRONGLENGTH
+                        response.error_index = idx
+                        break
+                    except WrongEncodingException:
+                        logger.debug('TestSet request failed: wrongEncoding #%s' % idx)
+                        response.error = pyagentx2.ERROR_WRONGENCODING
+                        response.error_index = idx
+                        break
+                    except WrongValueException:
+                        logger.debug('TestSet request failed: wrongValue #%s' % idx)
                         response.error = pyagentx2.ERROR_WRONGVALUE
                         response.error_index = idx
+                        break
+                    except NoCreationException:
+                        logger.debug('TestSet request failed: noCreation #%s' % idx)
+                        response.error = pyagentx2.ERROR_NOCREATION
+                        response.error_index = idx
+                        break
+                    except InconsistentValueException:
+                        logger.debug('TestSet request failed: inconsistentValue #%s' % idx)
+                        response.error = pyagentx2.ERROR_INCONSISTENTVALUE
+                        response.error_index = idx
+                        break
+                    except ResourceUnavailableException:
+                        logger.debug('TestSet request failed: resourceUnavailable #%s' % idx)
+                        response.error = pyagentx2.ERROR_RESOURCEUNAVAILABLE
+                        response.error_index = idx
+                        break
+                    except NotWritableException:
+                        logger.debug('TestSet request failed: notWritable #%s' % idx)
+                        response.error = pyagentx2.ERROR_NOTWRITABLE
+                        response.error_index = idx
+                        break
+                    except InconsistentNameException:
+                        logger.debug('TestSet request failed: inconsistentName #%s' % idx)
+                        response.error = pyagentx2.ERROR_INCONSISTENTNAME
+                        response.error_index = idx
+                        break
+                    except:
+                        logger.debug('Unexpected error')
                         break
 
                 logger.debug('TestSet request passed')
