@@ -233,14 +233,18 @@ class Network(threading.Thread):
 
             elif request.type == pyagentx2.AGENTX_COMMITSET_PDU:
                 logger.info("Received COMMITSET PDU")
-
-                try:
-                    if tid in self._transactions:
-                        for matching_oid, oid, type, value in self._transactions[tid]:
+                if tid in self._transactions:
+                    idx = 0
+                    for matching_oid, oid, type, value in self._transactions[tid]:
+                        idx += 1
+                        try:
                             self._sethandlers[matching_oid].commit(oid, type, value, self.mib)
-                        del (self._transactions[tid])
-                except:
-                    logger.error('CommitSet failed')
+                        except:
+                            logger.error('CommitSet failed')
+                            response.error = pyagentx2.ERROR_COMMITFAILED
+                            response.error_index = idx
+                    del (self._transactions[tid])
+
 
             elif request.type == pyagentx2.AGENTX_UNDOSET_PDU:
                 if tid in self._transactions:

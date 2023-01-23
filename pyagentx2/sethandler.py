@@ -44,6 +44,9 @@ class NotWritableException(Exception):
 class InconsistentNameException(Exception):
     pass
 
+class CommitFailedException(Exception):
+    pass
+
 
 class SetHandler(object):
 
