@@ -42,7 +42,7 @@ class Agent(object):
             raise AgentError('OID isn\'t valid')
         self._updater_list.append({'oid':oid, 'class':class_, 'freq':freq})
 
-    def register_set(self, oid, class_):
+    def register_set(self, oid, class_, *args, **kwargs):
         if pyagentx2.SetHandler not in inspect.getmro(class_):
             raise AgentError('Class given isn\'t a SetHandler')
         # cleanup and test oid
@@ -51,7 +51,7 @@ class Agent(object):
             [int(i) for i in oid.split('.')]
         except ValueError:
             raise AgentError('OID isn\'t valid')
-        self._sethandlers[oid] = class_()
+        self._sethandlers[oid] = class_(*args, **kwargs)
 
     def setup(self):
         # Override this
