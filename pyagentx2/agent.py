@@ -29,6 +29,7 @@ class Agent(object):
         self._updater_list = []
         self._sethandlers = {}
         self._threads = []
+        self.mib = MIB()
 
     def register(self, oid, class_, freq=10):
         if Updater not in inspect.getmro(class_):
@@ -57,19 +58,18 @@ class Agent(object):
         pass
 
     def start(self):
-        mib = MIB()
         self.setup()
 
         # Start Updaters
         for u in self._updater_list:
             logger.debug('Starting updater [%s]' % u['oid'])
-            t = u['class'](mib, u['oid'], u['freq'])
+            t = u['class'](self.mib, u['oid'], u['freq'])
             t.start()
             self._threads.append(t)
 
         # Start Network
         oid_list = [u['oid'] for u in self._updater_list]
-        t = Network(mib, oid_list, self._sethandlers)
+        t = Network(self.mib, oid_list, self._sethandlers)
         t.start()
         self._threads.append(t)
 
