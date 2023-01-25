@@ -31,8 +31,8 @@ def str_to_oid(data):
 class NetSnmpTestMibScalar(pyagentx2.Updater):
 
     def update(self, mib):
-        # self.set_INTEGER('1.0', 1000)
-        # mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.1.3.0', 'String for NET-SNMP-EXAMPLES-MIB')
+        mib.set_INTEGER('1.3.6.1.4.1.8072.2.1.1.0', 1000)
+        mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.1.3.0', 'String for NET-SNMP-EXAMPLES-MIB')
         mib.set_OBJECTIDENTIFIER('1.3.6.1.4.1.8072.2.1.4.0', '1.2')
         mib.set_IPADDRESS('1.3.6.1.4.1.8072.2.1.5.0', '127.0.0.1')
         mib.set_COUNTER32('1.3.6.1.4.1.8072.2.1.6.0', 2000)
@@ -89,11 +89,20 @@ class NetSnmpOctectStringSet(pyagentx2.SetHandler):
 class MyAgent(pyagentx2.Agent):
 
     def setup(self):
-        self.register('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
-        self.register('1.3.6.1.4.1.8072.2.2', NetSnmpTestMibTable)
+        # Register OID to the master
+        self.register('1.3.6.1.4.1.8072.2.1')
+        self.register('1.3.6.1.4.1.8072.2.2')
+
+        # Register Set handlers that would take care of SET operations
         self.register_set('1.3.6.1.4.1.8072.2.1.1.0', NetSnmpIntegerSet)
         self.register_set('1.3.6.1.4.1.8072.2.1.2.0', NetSnmpIpSet)
         self.register_set('1.3.6.1.4.1.8072.2.1.3.0', NetSnmpOctectStringSet)
+
+        # Register updater
+        self.register_updater('1.3.6.1.4.1.8072.2.1', NetSnmpTestMibScalar)
+        self.register_updater('1.3.6.1.4.1.8072.2.2', NetSnmpTestMibTable)
+
+
 
 
 def main():

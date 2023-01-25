@@ -26,12 +26,22 @@ class AgentError(Exception):
 class Agent(object):
 
     def __init__(self):
+        self._oid_list = []
         self._updater_list = []
         self._sethandlers = {}
         self._threads = []
         self.mib = MIB()
 
-    def register(self, oid, class_, freq=10):
+    def register(self, oid):
+        # cleanup and test oid
+        try:
+            oid = oid.strip(' .')
+            [int(i) for i in oid.split('.')]
+        except ValueError:
+            raise AgentError('OID isn\'t valid')
+        self._oid_list.append(oid)
+
+    def register_updater(self, oid, class_, freq=10):
         if Updater not in inspect.getmro(class_):
             raise AgentError('Class given isn\'t an updater')
         # cleanup and test oid
@@ -68,8 +78,7 @@ class Agent(object):
             self._threads.append(t)
 
         # Start Network
-        oid_list = [u['oid'] for u in self._updater_list]
-        t = Network(self.mib, oid_list, self._sethandlers)
+        t = Network(self.mib, self._oid_list, self._sethandlers)
         t.start()
         self._threads.append(t)
 
