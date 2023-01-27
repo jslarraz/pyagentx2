@@ -82,7 +82,7 @@ class PDU(object):
     def encode_octet(self, octet):
         buf = struct.pack('!L', len(octet))
         # buf += str(octet)
-        buf += octet.encode()
+        buf += octet.encode('charmap')
         padding = ( 4 - ( len(octet) % 4 ) ) % 4
         # buf += chr(0)* padding
         buf += chr(0).encode()* padding
@@ -226,7 +226,7 @@ class PDU(object):
             padding = 4 - (l%4)
             buf = self.decode_buf[:l]
             self.decode_buf = self.decode_buf[l+padding:]
-            return buf.decode()
+            return buf.decode('charmap')
         except Exception as e:
             logger.exception('Invalid packing octet header')
 

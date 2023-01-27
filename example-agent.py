@@ -31,8 +31,8 @@ def str_to_oid(data):
 class NetSnmpTestMibScalar(pyagentx2.Updater):
 
     def update(self, mib):
-        mib.set_INTEGER('1.3.6.1.4.1.8072.2.1.1.0', 1000)
-        mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.1.3.0', 'String for NET-SNMP-EXAMPLES-MIB')
+        # mib.set_INTEGER('1.3.6.1.4.1.8072.2.1.1.0', 1000)
+        # mib.set_OCTETSTRING('1.3.6.1.4.1.8072.2.1.3.0', 'String for NET-SNMP-EXAMPLES-MIB')
         mib.set_OBJECTIDENTIFIER('1.3.6.1.4.1.8072.2.1.4.0', '1.2')
         mib.set_IPADDRESS('1.3.6.1.4.1.8072.2.1.5.0', '127.0.0.1')
         mib.set_COUNTER32('1.3.6.1.4.1.8072.2.1.6.0', 2000)
