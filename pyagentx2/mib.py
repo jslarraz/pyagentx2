@@ -20,6 +20,9 @@ class MIB(object):
         self.data = {}
         self.data_idx = []
 
+    def __iter__(self):
+        return MibIterator(self)
+
     def has_oid(self, oid):
         return (oid in self.data)
 
@@ -118,3 +121,26 @@ class MIB(object):
                     return tmp_oid
             return None  # No match!
 
+
+class MibIterator:
+    ''' Iterator class '''
+
+    def __init__(self, mib):
+        # MIB object reference
+        self._mib = mib
+        # member variable to keep track of current index
+        self._index = 0
+
+    def __next__(self):
+        ''''Returns the next value from team object's lists '''
+        if self._index < len(self._mib.data):
+            index = self._mib.data.keys()[self._index]
+            aux = self._mib.data[index]
+            result = (aux['name'], aux['type'], aux['value'])
+            self._index += 1
+            return result
+        # End of Iteration
+        raise StopIteration
+
+    def next(self):
+        return self.__next__()
