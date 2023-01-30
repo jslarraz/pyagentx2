@@ -28,7 +28,7 @@ class Updater(threading.Thread):
         self._freq = freq
 
     def run(self):
-        # _mib = MIB()
+        _mib = MIB()
         start_time = 0
         while True:
             if self.stop.is_set(): break
@@ -38,7 +38,8 @@ class Updater(threading.Thread):
                 start_time = now
 
                 # Clean the temporal mib and update
-                _mib = copy.deepcopy(self.mib) # TODO maybe I need to do a hard copy to avoid modifying orignal MIB accidentaly
+                _mib.data = copy.deepcopy(self.mib.data) # TODO maybe I need to do a hard copy to avoid modifying orignal MIB accidentaly
+                _mib.data_idx = copy.deepcopy(self.mib.data_idx) # TODO maybe I need to do a hard copy to avoid modifying orignal MIB accidentaly
                 self.update(_mib)
 
                 # Add to mib only those oids that belong to this updater
