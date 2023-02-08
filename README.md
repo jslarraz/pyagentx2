@@ -29,7 +29,7 @@ You can install it by simply running:
 
 ## SNMP Agent Configuration
 
-I have tested the pyagentx with NetSNMP, using [this]() docker image. If you use this container, you can configure the NetSNMP agent according to its documentation.
+I have tested the pyagentx with NetSNMP, using [this](https://hub.docker.com/r/jslarraz/netsnmp) docker image. If you use this container, you can configure the NetSNMP agent according to its documentation.
 
 ## Change log
 

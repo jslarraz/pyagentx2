@@ -63,12 +63,8 @@ class Agent(object):
             raise AgentError('OID isn\'t valid')
         self._sethandlers[oid] = class_(*args, **kwargs)
 
-    def setup(self):
-        # Override this
-        pass
 
     def start(self):
-        self.setup()
 
         # Start Updaters
         for u in self._updater_list:

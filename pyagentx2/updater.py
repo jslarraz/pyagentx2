@@ -38,8 +38,7 @@ class Updater(threading.Thread):
                 start_time = now
 
                 # Clean the temporal mib and update
-                _mib.data = copy.deepcopy(self.mib.data) # TODO maybe I need to do a hard copy to avoid modifying orignal MIB accidentaly
-                _mib.data_idx = copy.deepcopy(self.mib.data_idx) # TODO maybe I need to do a hard copy to avoid modifying orignal MIB accidentaly
+                _mib.clear()
                 self.update(_mib)
 
                 # Add to mib only those oids that belong to this updater
